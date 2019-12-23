@@ -96,21 +96,21 @@ const packageJson = {
 
 function main() {
     if (appName) {        
-        
+        console.log(`Creating a new React app in ${__dirname}/${appName}.`);
+        console.log(`Installing package. This might take a couple of minutes.`);
         shell.exec(`cp -r ${__dirname}/nextweb ${appName}`)
+        console.log(`Installing nextWeb.......`);
         shell.cd(appName)
+        console.log(`Installing template dependencies.......`);
         shell.exec('npm install')
-
-        console.log(
-            `Installing ${'nextweb'.cyan}...`
-          );
         fs.writeFileSync(
             path.join(`${process.cwd()}`, 'package.json'),
             JSON.stringify(packageJson, null, 2) + os.EOL
         );
-        
-        console.log('SUCCESS!');
-        console.log(`cd ${appName} and npm run dev`);
+        console.log(`Success! Create ${appName} at ${__dirname}/${appName}`);
+        console.log(`We suggest that you begin by typing:`);
+        console.log(`cd ${appName}`);
+        console.log(`npm run dev`);
     } else {
         console.log('AppName Not found!');
     }
