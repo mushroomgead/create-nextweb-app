@@ -5,31 +5,60 @@ let fs = require('fs')
 let inquirer = require('inquirer')
 let _ = require('lodash')
 const path = require('path');
+var validate = require("validate-npm-package-name")
 const os = require('os');
 const displayedCommand = 'npm'
 const packageJson = require(`${__dirname}/nextweb/package.json`);
 
 let appName = process.argv[2]
+
 const question = [{
     type: 'input',
     name: 'project_name',
     message: 'what is your project named?'
 }]
 
-function main() {   
+function validateNpmName(name) {
+    const nameValidation = validate(name)
+    if (nameValidation.validForNewPackages) {
+        return { valid: true }
+    }
+    return {
+        valid: false,
+        problems: [
+          ...(nameValidation.errors || []),
+          ...(nameValidation.warnings || []),
+        ],
+    }
+}
+
+async function main() {   
+    const validation = validateNpmName(appName)
     if (appName) {
-        createNextApp(appName)
+        if (validation.valid) {
+            createNextApp(appName)
+        } else {
+            displayNpmNameError(appName)
+        }
     } else {
         inquirer
         .prompt(question)
         .then(answers => {
             if (answers.project_name) {
-                createNextApp(answers.project_name)
+                if (validateNpmName(answers.project_name).valid) {
+                    createNextApp(answers.project_name)
+                } else {
+                    displayNpmNameError(answers.project_name)
+                }
             } else {
-                console.log('Please spacify name');
+                console.log(colors.red('Please spacify name'));
             }
         })
     }
+}
+
+function displayNpmNameError(name) {
+    return console.log(colors.red('ERROR! ') + validateNpmName(name).problems[0]); 
 }
 
 function createNextApp(project_name) {
@@ -42,11 +71,12 @@ function createNextApp(project_name) {
     console.log()
     shell.exec(`cp -r ${__dirname}/nextweb ${project_name}`)
     shell.exec(`cd ${project_name}`)
-    shell.exec('npm install')
-    console.log('Installing packages. This might take a couple of minutes.')
-    console.log()
     fs.writeFile('xxx.json', JSON.stringify(PACKAGE_JSON, null, 2), () => null)            
     shell.exec(`mv ${process.cwd()}/xxx.json ${process.cwd()}/${project_name}/package.json`)
+    console.log()
+    // shell.exec('npm install')
+    console.log('Installing packages. This might take a couple of minutes.')
+    console.log()
 
     console.log(`${colors.green('Success!')} Created ${project_name} at ${root}`)
     console.log('Inside that directory, you can run several commands:')
