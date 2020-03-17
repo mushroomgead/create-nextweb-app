@@ -74,7 +74,7 @@ function createNextApp(project_name) {
     fs.writeFile('xxx.json', JSON.stringify(PACKAGE_JSON, null, 2), () => null)            
     shell.exec(`mv ${process.cwd()}/xxx.json ${process.cwd()}/${project_name}/package.json`)
     console.log()
-    // shell.exec('npm install')
+    shell.exec('npm install')
     console.log('Installing packages. This might take a couple of minutes.')
     console.log()
 
@@ -93,6 +93,9 @@ function createNextApp(project_name) {
     console.log('We suggest that you begin by typing:')
     console.log()
     console.log(colors.cyan('  cd'), project_name)
+    console.log(
+        `  ${colors.cyan(`${displayedCommand} install`)}`
+      )
     console.log(
       `  ${colors.cyan(`${displayedCommand} run dev`)}`
     )
